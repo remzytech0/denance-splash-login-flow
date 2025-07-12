@@ -3,36 +3,76 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const LoginPage = () => {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [username, setUsername] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (email && password) {
-        toast({
-          title: "Welcome to Denance",
-          description: "Login successful! Redirecting...",
-        });
-      } else {
-        throw new Error("Please fill in all fields");
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Welcome back!",
+        description: "Login successful! Redirecting...",
+      });
     } catch (error) {
       toast({
         title: "Login Failed",
         description: error instanceof Error ? error.message : "Please check your credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            username,
+            phone_number: phone,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Account created!",
+        description: "Please check your email to verify your account.",
+      });
+    } catch (error) {
+      toast({
+        title: "Sign Up Failed",
+        description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive",
       });
     } finally {
@@ -53,23 +93,63 @@ export const LoginPage = () => {
             />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
-            Welcome Back
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h1>
           <p className="text-muted-foreground">
-            Sign in to your Denance account
+            {isSignUp ? 'Create your Denance account' : 'Sign in to your Denance account'}
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Auth Form */}
         <Card className="login-card border-border">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-xl text-center">Sign In</CardTitle>
+            <CardTitle className="text-xl text-center">
+              {isSignUp ? 'Create Account' : 'Sign In'}
+            </CardTitle>
             <CardDescription className="text-center">
-              Enter your credentials to access your account
+              {isSignUp 
+                ? 'Enter your details to create your account' 
+                : 'Enter your credentials to access your account'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter your username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-10 input-glow"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="pl-10 input-glow"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -115,15 +195,17 @@ export const LoginPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <Button
-                  type="button"
-                  variant="link"
-                  className="px-0 text-muted-foreground hover:text-primary"
-                >
-                  Forgot password?
-                </Button>
-              </div>
+              {!isSignUp && (
+                <div className="flex items-center justify-between">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-muted-foreground hover:text-primary"
+                  >
+                    Forgot password?
+                  </Button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -133,22 +215,23 @@ export const LoginPage = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{isSignUp ? 'Creating account...' : 'Signing in...'}</span>
                   </div>
                 ) : (
-                  'Sign In'
+                  isSignUp ? 'Create Account' : 'Sign In'
                 )}
               </Button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{' '}
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <Button
                   variant="link"
                   className="px-0 text-primary hover:text-accent"
+                  onClick={() => setIsSignUp(!isSignUp)}
                 >
-                  Sign up
+                  {isSignUp ? 'Sign in' : 'Sign up'}
                 </Button>
               </p>
             </div>
