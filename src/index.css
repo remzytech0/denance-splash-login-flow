@@ -2,39 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Denance Design System - Dark theme with orange branding */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark theme with orange accent */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Orange primary from logo */
+    --primary: 16 100% 60%;
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 16 85% 55%;
+    --accent-foreground: 0 0% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 20%;
+    --input: 0 0% 16%;
+    --ring: 16 100% 60%;
+
+    /* Custom design tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(16 100% 60%), hsl(20 95% 55%));
+    --gradient-dark: linear-gradient(135deg, hsl(0 0% 8%), hsl(0 0% 12%));
+    --shadow-glow: 0 0 40px hsl(16 100% 60% / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --radius: 0.5rem;
 
@@ -100,6 +106,58 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+}
+
+@layer components {
+  /* Splash screen animations */
+  .splash-enter {
+    @apply animate-in fade-in duration-1000;
+  }
+  
+  .splash-exit {
+    @apply animate-out fade-out duration-500;
+  }
+
+  /* Logo animations */
+  .logo-glow {
+    filter: drop-shadow(var(--shadow-glow));
+    transition: var(--transition-smooth);
+  }
+
+  .logo-pulse {
+    animation: logo-pulse 2s ease-in-out infinite;
+  }
+
+  /* Form styles */
+  .login-card {
+    @apply bg-gradient-to-br from-card via-card to-muted border border-border backdrop-blur-sm;
+    box-shadow: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
+  }
+
+  .input-glow:focus {
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation-fill-mode: forwards;
+  }
+  
+  .animate-out {
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
   }
 }
