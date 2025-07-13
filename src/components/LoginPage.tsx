@@ -51,7 +51,7 @@ export const LoginPage = () => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -72,9 +72,32 @@ export const LoginPage = () => {
         throw error;
       }
 
+      console.log('User signed up successfully');
+      
+      // Schedule activation code assignment after 1 minute
+      setTimeout(async () => {
+        try {
+          const response = await fetch('https://kattsnupukjwyasjhxyx.supabase.co/functions/v1/assign-activation-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: data.user?.id }),
+          });
+          
+          if (response.ok) {
+            console.log('Activation code assigned successfully');
+          } else {
+            console.error('Failed to assign activation code');
+          }
+        } catch (error) {
+          console.error('Error assigning activation code:', error);
+        }
+      }, 60000); // 1 minute delay
+      
       toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
+        title: "Success",
+        description: "Account created successfully! Your activation code will be assigned in 1 minute.",
       });
     } catch (error) {
       toast({

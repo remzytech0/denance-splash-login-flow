@@ -92,20 +92,27 @@ export const BuyActivationPage = ({ onBack, onSuccess }: BuyActivationPageProps)
 
       if (purchaseError) throw purchaseError;
 
-      // Send to Telegram bot
-      const { error: telegramError } = await supabase.functions.invoke('send-telegram-notification', {
-        body: {
-          purchaseId: purchaseData.id,
-          senderName: formData.senderName,
-          senderEmail: formData.email,
-          paymentDetails: paymentDetails,
-          screenshot: formData.screenshot
-        }
-      });
+      // Send notification to Telegram
+      try {
+        const response = await fetch('https://kattsnupukjwyasjhxyx.supabase.co/functions/v1/send-telegram-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            senderName: formData.senderName,
+            senderEmail: formData.email,
+            paymentScreenshotUrl: formData.screenshot ? 'screenshot-uploaded' : null
+          }),
+        });
 
-      if (telegramError) {
-        console.error('Telegram notification error:', telegramError);
-        // Don't fail the whole process if telegram fails
+        if (!response.ok) {
+          console.error('Failed to send Telegram notification');
+        } else {
+          console.log('Telegram notification sent successfully');
+        }
+      } catch (error) {
+        console.error('Error sending Telegram notification:', error);
       }
 
       toast({

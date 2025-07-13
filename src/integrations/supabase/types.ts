@@ -174,6 +174,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_activation_code_to_user: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
       generate_activation_code: {
         Args: Record<PropertyKey, never>
         Returns: string

@@ -1,1 +1,76 @@
 project_id = "kattsnupukjwyasjhxyx"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+ip_version = "ipv4"
+tenant_id = "realtime-dev"
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1:54321"
+
+[inbucket]
+enabled = true
+port = 54324
+api_port = 54325
+smtp_port = 54326
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+preupload_validation = false
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://kattsnupukjwyasjhxyx.supabase.co/auth/v1/callback"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 6
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_password_change = false
+template_path = "./supabase/templates"
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = false
+template_path = "./supabase/templates"
+
+[edge_functions]
+enabled = true
+
+[functions.assign-activation-code]
+verify_jwt = false
+
+[functions.send-telegram-notification]
+verify_jwt = false
+
+[analytics]
+enabled = false
