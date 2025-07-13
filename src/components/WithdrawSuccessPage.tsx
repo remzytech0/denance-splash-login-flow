@@ -5,19 +5,22 @@ interface WithdrawSuccessPageProps {
   onGoBack: () => void;
   onViewHistory: () => void;
   withdrawalData: {
-    accountNumber: string;
-    bank: string;
+    accountNumber?: string;
+    bank?: string;
     amount: number;
     currency: string;
+    walletAddress?: string;
   };
   username: string;
+  currency?: 'USD' | 'NGN';
 }
 
 export const WithdrawSuccessPage = ({ 
   onGoBack, 
   onViewHistory, 
   withdrawalData,
-  username 
+  username,
+  currency = 'NGN'
 }: WithdrawSuccessPageProps) => {
   const formatAmount = () => {
     if (withdrawalData.currency === 'NGN') {
@@ -47,46 +50,80 @@ export const WithdrawSuccessPage = ({
           </p>
           
           <p className="text-foreground text-lg">
-            Your withdrawal request has been processed.
+            {currency === 'USD' 
+              ? 'Withdrawal to Binance account successful!'
+              : 'Your withdrawal request has been processed.'
+            }
           </p>
         </div>
 
         {/* Withdrawal Details */}
         <div className="space-y-4 text-left">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-black" />
-            </div>
-            <div>
-              <span className="text-foreground">Account Number: </span>
-              <span className="text-primary font-semibold">{withdrawalData.accountNumber}</span>
-            </div>
-          </div>
+          {currency === 'USD' ? (
+            <>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <span className="text-foreground">Wallet Address: </span>
+                  <span className="text-primary font-semibold break-all text-sm">
+                    {withdrawalData.walletAddress}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <Send className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <span className="text-foreground">Amount: </span>
+                  <span className="text-primary font-semibold">{formatAmount()}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <span className="text-foreground">Account Number: </span>
+                  <span className="text-primary font-semibold">{withdrawalData.accountNumber}</span>
+                </div>
+              </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <Building className="w-4 h-4 text-black" />
-            </div>
-            <div>
-              <span className="text-foreground">Bank: </span>
-              <span className="text-primary font-semibold">{withdrawalData.bank}</span>
-            </div>
-          </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <Building className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <span className="text-foreground">Bank: </span>
+                  <span className="text-primary font-semibold">{withdrawalData.bank}</span>
+                </div>
+              </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <Send className="w-4 h-4 text-black" />
-            </div>
-            <div>
-              <span className="text-foreground">Amount Sent: </span>
-              <span className="text-primary font-semibold">{formatAmount()}</span>
-            </div>
-          </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <Send className="w-4 h-4 text-black" />
+                </div>
+                <div>
+                  <span className="text-foreground">Amount Sent: </span>
+                  <span className="text-primary font-semibold">{formatAmount()}</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Information */}
         <p className="text-foreground text-center">
-          Funds are on their way—please allow a few minutes for confirmation from your bank.
+          {currency === 'USD' 
+            ? 'You will receive your funds within a few hours.'
+            : 'Funds are on their way—please allow a few minutes for confirmation from your bank.'
+          }
         </p>
 
         {/* Action Buttons */}

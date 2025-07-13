@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      activation_purchases: {
+        Row: {
+          created_at: string
+          id: string
+          payment_details_id: string | null
+          payment_screenshot_url: string | null
+          sender_email: string
+          sender_name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_details_id?: string | null
+          payment_screenshot_url?: string | null
+          sender_email: string
+          sender_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_details_id?: string | null
+          payment_screenshot_url?: string | null
+          sender_email?: string
+          sender_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activation_purchases_payment_details_id_fkey"
+            columns: ["payment_details_id"]
+            isOneToOne: false
+            referencedRelation: "payment_details"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_details: {
+        Row: {
+          account_name: string
+          account_number: string
+          amount: number
+          bank_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          amount: number
+          bank_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          amount?: number
+          bank_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activation_code: string

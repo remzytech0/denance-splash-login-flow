@@ -7,6 +7,8 @@ import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } fro
 import { WithdrawPage } from './WithdrawPage';
 import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
+import { BuyActivationPage } from './BuyActivationPage';
+import { BuyActivationSuccessPage } from './BuyActivationSuccessPage';
 import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
@@ -22,7 +24,7 @@ export const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
-  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success'>('dashboard');
   const [withdrawalData, setWithdrawalData] = useState<any>(null);
   const { toast } = useToast();
 
@@ -112,6 +114,14 @@ export const Dashboard = () => {
     fetchProfile(); // Refresh profile to get updated balance
   };
 
+  const handleBuyActivation = () => {
+    setCurrentView('buy-activation');
+  };
+
+  const handleBuyActivationSuccess = () => {
+    setCurrentView('buy-success');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center">
@@ -148,6 +158,24 @@ export const Dashboard = () => {
         onViewHistory={() => setCurrentView('dashboard')} // Could implement history view later
         withdrawalData={withdrawalData}
         username={profile?.username || 'User'}
+        currency={currency}
+      />
+    );
+  }
+
+  if (currentView === 'buy-activation') {
+    return (
+      <BuyActivationPage
+        onBack={() => setCurrentView('dashboard')}
+        onSuccess={handleBuyActivationSuccess}
+      />
+    );
+  }
+
+  if (currentView === 'buy-success') {
+    return (
+      <BuyActivationSuccessPage
+        onGoBack={() => setCurrentView('dashboard')}
       />
     );
   }
@@ -223,7 +251,10 @@ export const Dashboard = () => {
             <span className="text-foreground font-medium">Reset</span>
           </button>
         
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+        <button 
+          onClick={handleBuyActivation}
+          className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+        >
           <CreditCard className="w-8 h-8 text-primary" />
           <span className="text-foreground font-medium">Buy Activation</span>
         </button>
