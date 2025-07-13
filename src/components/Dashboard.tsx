@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } from 'lucide-react';
 import { WithdrawPage } from './WithdrawPage';
@@ -205,79 +206,97 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Currency Selection */}
-      <div className="px-6 mb-8">
-        <div className="flex items-center space-x-4">
-          <span className="text-foreground text-lg">Select Currency:</span>
-          <Select value={currency} onValueChange={(value: 'USD' | 'NGN') => setCurrency(value)}>
-            <SelectTrigger className="w-32 bg-background border-border">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="USD">$ — USD</SelectItem>
-              <SelectItem value="NGN">₦ — NGN</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <p className="text-muted-foreground mt-2">
-          Use this dropdown to select your preferred currency.
-        </p>
-      </div>
+      <div className="px-6 space-y-6 mb-8">
+        {/* Currency Selection Card */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-lg">Currency Selection</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-4">
+              <span className="text-foreground">Select Currency:</span>
+              <Select value={currency} onValueChange={(value: 'USD' | 'NGN') => setCurrency(value)}>
+                <SelectTrigger className="w-32 bg-background border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">$ — USD</SelectItem>
+                  <SelectItem value="NGN">₦ — NGN</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-muted-foreground mt-2">
+              Use this dropdown to select your preferred currency.
+            </p>
+          </CardContent>
+        </Card>
 
-        {/* Today Spent */}
-        <div className="px-6 mb-8 text-center">
-          <h2 className="text-xl text-foreground mb-4">Current Balance</h2>
-          <div className="text-6xl font-bold text-primary mb-6">
-            {formatAmount(profile?.balance || 0)}
-          </div>
-          <Button 
-            onClick={handleWithdraw}
-            className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg"
-          >
-            Withdraw
-          </Button>
-          <p className="text-foreground mt-4 text-lg">
-            Available Balance: {formatAmount(profile?.balance || 0)}
-          </p>
-        </div>
+        {/* Balance Card */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-xl text-center">Current Balance</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="text-6xl font-bold text-primary mb-6">
+              {formatAmount(profile?.balance || 0)}
+            </div>
+            <Button 
+              onClick={handleWithdraw}
+              className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg"
+            >
+              Withdraw
+            </Button>
+            <p className="text-foreground mt-4 text-lg">
+              Available Balance: {formatAmount(profile?.balance || 0)}
+            </p>
+          </CardContent>
+        </Card>
 
-        {/* Action Buttons Grid */}
-        <div className="px-6 grid grid-cols-3 gap-6 mb-8">
-          <button 
-            onClick={handleRefresh}
-            className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
-          >
-            <RotateCcw className="w-8 h-8 text-primary" />
-            <span className="text-foreground font-medium">Reset</span>
-          </button>
-        
-        <button 
-          onClick={handleBuyActivation}
-          className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
-        >
-          <CreditCard className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">Buy Activation</span>
-        </button>
-        
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-          <Phone className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">Airtime</span>
-        </button>
-        
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-          <User className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">Contact</span>
-        </button>
-        
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-          <Clock className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">Watch</span>
-        </button>
-        
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-          <FileText className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">History</span>
-        </button>
+        {/* Action Buttons Card */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <button 
+                onClick={handleRefresh}
+                className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+              >
+                <RotateCcw className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">Reset</span>
+              </button>
+            
+              <button 
+                onClick={handleBuyActivation}
+                className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+              >
+                <CreditCard className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">Buy Activation</span>
+              </button>
+            
+              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+                <Phone className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">Airtime</span>
+              </button>
+            
+              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+                <User className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">Contact</span>
+              </button>
+            
+              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+                <Clock className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">Watch</span>
+              </button>
+            
+              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+                <FileText className="w-8 h-8 text-primary" />
+                <span className="text-foreground font-medium">History</span>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Footer */}
