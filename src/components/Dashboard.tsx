@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, User, Phone, Mail, Calendar, Settings, BarChart3, Wallet, TrendingUp } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } from 'lucide-react';
 
 interface Profile {
   username: string;
@@ -15,6 +15,7 @@ export const Dashboard = () => {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
 
   useEffect(() => {
     if (user) {
@@ -39,6 +40,13 @@ export const Dashboard = () => {
     }
   };
 
+  const formatAmount = (amount: number) => {
+    if (currency === 'NGN') {
+      return `₦${(amount * 10).toLocaleString()}`;
+    }
+    return `$${amount.toLocaleString()}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center">
@@ -48,142 +56,102 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark p-6">
+    <div className="min-h-screen bg-gradient-dark text-foreground">
       {/* Header */}
-      <header className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between p-6 pb-4">
         <div className="flex items-center space-x-4">
-          <img
-            src="/lovable-uploads/4ab83582-0f2d-434b-a1a4-8c77ca6a0b55.png"
-            alt="Denance Logo"
-            className="w-12 h-auto"
-          />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Hello 👋 {profile?.username || 'User'}
-            </h1>
-            <p className="text-muted-foreground">Welcome back to your dashboard</p>
+          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+            <User className="w-6 h-6 text-black" />
           </div>
+          <h1 className="text-3xl font-bold text-primary">
+            HELLO {profile?.username?.toUpperCase() || 'USER'}
+          </h1>
         </div>
-        <Button
-          onClick={signOut}
-          variant="outline"
-          className="flex items-center space-x-2"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </Button>
-      </header>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {/* Profile Card */}
-        <Card className="login-card border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-primary" />
-              <span>Profile Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center space-x-2 text-sm">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Username:</span>
-              <span className="text-foreground">{profile?.username}</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <Mail className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Email:</span>
-              <span className="text-foreground">{user?.email}</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <Phone className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Phone:</span>
-              <span className="text-foreground">{profile?.phone_number || 'Not provided'}</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Joined:</span>
-              <span className="text-foreground">
-                {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card className="login-card border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="w-5 h-5 text-primary" />
-              <span>Quick Stats</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Total Balance</span>
-              <span className="text-foreground font-semibold">$0.00</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Active Trades</span>
-              <span className="text-foreground font-semibold">0</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">P&L Today</span>
-              <span className="text-green-500 font-semibold">+$0.00</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="login-card border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Settings className="w-5 h-5 text-primary" />
-              <span>Quick Actions</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button className="w-full bg-gradient-primary hover:opacity-90">
-              <Wallet className="w-4 h-4 mr-2" />
-              View Wallet
-            </Button>
-            <Button variant="outline" className="w-full">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Start Trading
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex items-center space-x-4">
+          <Bell className="w-6 h-6 text-primary cursor-pointer" />
+          <Button
+            onClick={signOut}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Additional Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="login-card border-border">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest transactions and activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center text-muted-foreground py-8">
-              No recent activity to display
-            </div>
-          </CardContent>
-        </Card>
+      {/* Currency Selection */}
+      <div className="px-6 mb-8">
+        <div className="flex items-center space-x-4">
+          <span className="text-foreground text-lg">Select Currency:</span>
+          <Select value={currency} onValueChange={(value: 'USD' | 'NGN') => setCurrency(value)}>
+            <SelectTrigger className="w-32 bg-background border-border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="USD">$ — USD</SelectItem>
+              <SelectItem value="NGN">₦ — NGN</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <p className="text-muted-foreground mt-2">
+          Use this dropdown to select your preferred currency.
+        </p>
+      </div>
 
-        <Card className="login-card border-border">
-          <CardHeader>
-            <CardTitle>Market Overview</CardTitle>
-            <CardDescription>Current market trends and insights</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center text-muted-foreground py-8">
-              Market data will be displayed here
-            </div>
-          </CardContent>
-        </Card>
+      {/* Today Spent */}
+      <div className="px-6 mb-8 text-center">
+        <h2 className="text-xl text-foreground mb-4">Today Spent</h2>
+        <div className="text-6xl font-bold text-primary mb-6">
+          {formatAmount(10000)}
+        </div>
+        <Button className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg">
+          Withdraw
+        </Button>
+        <p className="text-foreground mt-4 text-lg">
+          Monthly spend target: {formatAmount(10000)}
+        </p>
+      </div>
+
+      {/* Action Buttons Grid */}
+      <div className="px-6 grid grid-cols-3 gap-6 mb-8">
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <RotateCcw className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">Reset</span>
+        </button>
+        
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <CreditCard className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">Buy Activation</span>
+        </button>
+        
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <Phone className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">Airtime</span>
+        </button>
+        
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <User className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">Contact</span>
+        </button>
+        
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <Clock className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">Watch</span>
+        </button>
+        
+        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
+          <FileText className="w-8 h-8 text-primary" />
+          <span className="text-foreground font-medium">History</span>
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 pb-6 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Bell className="w-5 h-5 text-primary" />
+          <span className="text-muted-foreground">O 2025</span>
+        </div>
       </div>
     </div>
   );
