@@ -93,7 +93,7 @@ export type Database = {
       }
       profiles: {
         Row: {
-          activation_code: string
+          activation_code: string | null
           balance: number | null
           created_at: string
           id: string
@@ -104,7 +104,7 @@ export type Database = {
           username: string
         }
         Insert: {
-          activation_code: string
+          activation_code?: string | null
           balance?: number | null
           created_at?: string
           id?: string
@@ -115,7 +115,7 @@ export type Database = {
           username: string
         }
         Update: {
-          activation_code?: string
+          activation_code?: string | null
           balance?: number | null
           created_at?: string
           id?: string
