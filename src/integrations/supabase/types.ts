@@ -16,28 +16,79 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          activation_code: string
+          balance: number | null
           created_at: string
           id: string
+          last_refresh_at: string | null
           phone_number: string | null
           updated_at: string
           user_id: string
           username: string
         }
         Insert: {
+          activation_code: string
+          balance?: number | null
           created_at?: string
           id?: string
+          last_refresh_at?: string | null
           phone_number?: string | null
           updated_at?: string
           user_id: string
           username: string
         }
         Update: {
+          activation_code?: string
+          balance?: number | null
           created_at?: string
           id?: string
+          last_refresh_at?: string | null
           phone_number?: string | null
           updated_at?: string
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          account_name: string
+          account_number: string
+          activation_code: string
+          amount: number
+          bank_name: string
+          created_at: string
+          currency: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          activation_code: string
+          amount: number
+          bank_name: string
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          activation_code?: string
+          amount?: number
+          bank_name?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -46,7 +97,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_activation_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

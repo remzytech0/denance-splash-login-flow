@@ -63,7 +63,14 @@ export const LoginPage = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's a username constraint error
+        if (error.message.includes('duplicate key value violates unique constraint') && 
+            error.message.includes('username')) {
+          throw new Error('This username has already been taken. Please choose a different username.');
+        }
+        throw error;
+      }
 
       toast({
         title: "Account created!",

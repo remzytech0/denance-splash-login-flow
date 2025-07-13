@@ -4,11 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } from 'lucide-react';
+import { WithdrawPage } from './WithdrawPage';
+import { WithdrawSuccessPage } from './WithdrawSuccessPage';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   username: string;
   phone_number: string;
   created_at: string;
+  balance: number;
+  last_refresh_at: string | null;
 }
 
 export const Dashboard = () => {
@@ -16,6 +21,9 @@ export const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success'>('dashboard');
+  const [withdrawalData, setWithdrawalData] = useState<any>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -27,7 +35,7 @@ export const Dashboard = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, phone_number, created_at')
+        .select('username, phone_number, created_at, balance, last_refresh_at')
         .eq('user_id', user?.id)
         .single();
 
@@ -47,11 +55,96 @@ export const Dashboard = () => {
     return `$${amount.toLocaleString()}`;
   };
 
+  const handleRefresh = async () => {
+    if (!user || !profile) return;
+
+    const now = new Date();
+    const lastRefresh = profile.last_refresh_at ? new Date(profile.last_refresh_at) : null;
+    
+    if (lastRefresh) {
+      const hoursDiff = (now.getTime() - lastRefresh.getTime()) / (1000 * 60 * 60);
+      if (hoursDiff < 24) {
+        const hoursLeft = Math.ceil(24 - hoursDiff);
+        toast({
+          title: "Refresh Not Available",
+          description: `You can refresh again in ${hoursLeft} hours`,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          balance: profile.balance + 100000,
+          last_refresh_at: now.toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      await fetchProfile();
+      toast({
+        title: "Balance Updated!",
+        description: "100,000 has been added to your account",
+      });
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      toast({
+        title: "Refresh Failed",
+        description: "Unable to update balance. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleWithdraw = () => {
+    if (currency === 'NGN') {
+      setCurrentView('withdraw');
+    } else {
+      toast({
+        title: "Currency Not Supported",
+        description: "Withdrawal is only available for NGN currency",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleWithdrawSuccess = (data: any) => {
+    setWithdrawalData(data);
+    setCurrentView('success');
+    fetchProfile(); // Refresh profile to get updated balance
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
+    );
+  }
+
+  if (currentView === 'withdraw') {
+    return (
+      <WithdrawPage
+        onBack={() => setCurrentView('dashboard')}
+        onSuccess={handleWithdrawSuccess}
+        currency={currency}
+        balance={profile?.balance || 0}
+      />
+    );
+  }
+
+  if (currentView === 'success') {
+    return (
+      <WithdrawSuccessPage
+        onGoBack={() => setCurrentView('dashboard')}
+        onViewHistory={() => setCurrentView('dashboard')} // Could implement history view later
+        withdrawalData={withdrawalData}
+        username={profile?.username || 'User'}
+      />
     );
   }
 
@@ -99,26 +192,32 @@ export const Dashboard = () => {
         </p>
       </div>
 
-      {/* Today Spent */}
-      <div className="px-6 mb-8 text-center">
-        <h2 className="text-xl text-foreground mb-4">Today Spent</h2>
-        <div className="text-6xl font-bold text-primary mb-6">
-          {formatAmount(10000)}
+        {/* Today Spent */}
+        <div className="px-6 mb-8 text-center">
+          <h2 className="text-xl text-foreground mb-4">Current Balance</h2>
+          <div className="text-6xl font-bold text-primary mb-6">
+            {formatAmount(profile?.balance || 0)}
+          </div>
+          <Button 
+            onClick={handleWithdraw}
+            className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg"
+          >
+            Withdraw
+          </Button>
+          <p className="text-foreground mt-4 text-lg">
+            Available Balance: {formatAmount(profile?.balance || 0)}
+          </p>
         </div>
-        <Button className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg">
-          Withdraw
-        </Button>
-        <p className="text-foreground mt-4 text-lg">
-          Monthly spend target: {formatAmount(10000)}
-        </p>
-      </div>
 
-      {/* Action Buttons Grid */}
-      <div className="px-6 grid grid-cols-3 gap-6 mb-8">
-        <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-          <RotateCcw className="w-8 h-8 text-primary" />
-          <span className="text-foreground font-medium">Reset</span>
-        </button>
+        {/* Action Buttons Grid */}
+        <div className="px-6 grid grid-cols-3 gap-6 mb-8">
+          <button 
+            onClick={handleRefresh}
+            className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+          >
+            <RotateCcw className="w-8 h-8 text-primary" />
+            <span className="text-foreground font-medium">Reset</span>
+          </button>
         
         <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
           <CreditCard className="w-8 h-8 text-primary" />
