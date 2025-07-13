@@ -64,10 +64,15 @@ export const LoginPage = () => {
       });
 
       if (error) {
-        // Check if it's a username constraint error
-        if (error.message.includes('duplicate key value violates unique constraint') && 
-            error.message.includes('username')) {
-          throw new Error('This username has already been taken. Please choose a different username.');
+        // Check for different types of errors
+        if (error.message.includes('User already registered')) {
+          throw new Error('An account with this email already exists. Please sign in instead.');
+        }
+        if (error.message.includes('duplicate key value violates unique constraint')) {
+          if (error.message.includes('username')) {
+            throw new Error('This username has already been taken. Please choose a different username.');
+          }
+          throw new Error('Registration failed. Please check your details and try again.');
         }
         throw error;
       }

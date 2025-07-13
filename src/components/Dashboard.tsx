@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X } from 'lucide-react';
 import { WithdrawPage } from './WithdrawPage';
 import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
@@ -25,8 +26,9 @@ export const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
-  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success' | 'history'>('dashboard');
   const [withdrawalData, setWithdrawalData] = useState<any>(null);
+  const [showWelcomeAlert, setShowWelcomeAlert] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -123,6 +125,18 @@ export const Dashboard = () => {
     setCurrentView('buy-success');
   };
 
+  const handleContact = () => {
+    window.open('mailto:denace@boxfi.uk', '_blank');
+  };
+
+  const handleWatch = () => {
+    window.open('https://youtube.com', '_blank');
+  };
+
+  const handleHistory = () => {
+    setCurrentView('history');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center">
@@ -181,6 +195,41 @@ export const Dashboard = () => {
     );
   }
 
+  if (currentView === 'history') {
+    return (
+      <div className="min-h-screen bg-gradient-dark text-foreground p-4">
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            onClick={() => setCurrentView('dashboard')}
+            variant="ghost"
+            className="text-primary hover:text-primary/80"
+          >
+            ← Back
+          </Button>
+          <h1 className="text-xl font-bold text-primary">Transaction History</h1>
+          <div></div>
+        </div>
+        
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-center">Coming Soon</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground">
+              Withdrawal and refresh history will be available soon.
+            </p>
+            <Button
+              onClick={() => setCurrentView('dashboard')}
+              className="mt-4 bg-primary text-black hover:bg-primary/90"
+            >
+              Back to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-dark text-foreground">
       {/* Header */}
@@ -207,6 +256,30 @@ export const Dashboard = () => {
       </div>
 
       <div className="px-4 space-y-4 mb-6">
+        {/* Welcome Alert */}
+        {showWelcomeAlert && (
+          <Alert className="bg-card border-primary/20">
+            <Info className="h-4 w-4 text-primary" />
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <AlertTitle className="text-primary">Daily Reward Info</AlertTitle>
+                <AlertDescription className="text-foreground text-sm mt-1">
+                  You will receive $10 every day that you can withdraw to your bank/wallet. 
+                  You can refresh your balance every 24 hours to get your daily reward.
+                </AlertDescription>
+              </div>
+              <Button
+                onClick={() => setShowWelcomeAlert(false)}
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground ml-2"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </Alert>
+        )}
+
         {/* Currency Selection Card */}
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
@@ -289,7 +362,10 @@ export const Dashboard = () => {
 
           <Card className="bg-card border-border">
             <CardContent className="p-3">
-              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+              <button 
+                onClick={handleContact}
+                className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
+              >
                 <User className="w-6 h-6 text-primary" />
                 <span className="text-foreground font-medium text-sm">Contact</span>
               </button>
@@ -298,8 +374,11 @@ export const Dashboard = () => {
 
           <Card className="bg-card border-border">
             <CardContent className="p-3">
-              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
-                <Clock className="w-6 h-6 text-primary" />
+              <button 
+                onClick={handleWatch}
+                className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
+              >
+                <Youtube className="w-6 h-6 text-primary" />
                 <span className="text-foreground font-medium text-sm">Watch</span>
               </button>
             </CardContent>
@@ -307,7 +386,10 @@ export const Dashboard = () => {
 
           <Card className="bg-card border-border">
             <CardContent className="p-3">
-              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+              <button 
+                onClick={handleHistory}
+                className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
+              >
                 <FileText className="w-6 h-6 text-primary" />
                 <span className="text-foreground font-medium text-sm">History</span>
               </button>
