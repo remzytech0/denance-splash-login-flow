@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X, Edit, Gift } from 'lucide-react';
+import { RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X, Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { WithdrawPage } from './WithdrawPage';
@@ -13,7 +13,6 @@ import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
 import { BuyActivationPage } from './BuyActivationPage';
 import { BuyActivationSuccessPage } from './BuyActivationSuccessPage';
-import { HistoryPage } from './HistoryPage';
 import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
@@ -129,50 +128,6 @@ export const Dashboard = () => {
     setCurrentView('buy-success');
   };
 
-  const handleGiftCard = async () => {
-    const activationCode = prompt("Please enter your activation code:");
-    
-    if (!activationCode) return;
-    
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('activation_code')
-        .eq('user_id', user?.id)
-        .single();
-      
-      if (error || !profile?.activation_code) {
-        toast({
-          title: "Invalid activation code",
-          description: "Please check your activation code and try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      if (profile.activation_code !== activationCode.toUpperCase()) {
-        toast({
-          title: "Invalid activation code",
-          description: "The activation code you entered is incorrect.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      toast({
-        title: "Gift Card Not Available",
-        description: "Gift cards are not available at the moment. Please check back later.",
-        variant: "default"
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleContact = () => {
     window.open('mailto:denace@boxfi.uk', '_blank');
   };
@@ -245,7 +200,38 @@ export const Dashboard = () => {
   }
 
   if (currentView === 'history') {
-    return <HistoryPage onBack={() => setCurrentView('dashboard')} />;
+    return (
+      <div className="min-h-screen bg-gradient-dark text-foreground p-4">
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            onClick={() => setCurrentView('dashboard')}
+            variant="ghost"
+            className="text-primary hover:text-primary/80"
+          >
+            ← Back
+          </Button>
+          <h1 className="text-xl font-bold text-primary">Transaction History</h1>
+          <div></div>
+        </div>
+        
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-center">Coming Soon</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground">
+              Withdrawal and refresh history will be available soon.
+            </p>
+            <Button
+              onClick={() => setCurrentView('dashboard')}
+              className="mt-4 bg-primary text-black hover:bg-primary/90"
+            >
+              Back to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
 
@@ -360,11 +346,11 @@ export const Dashboard = () => {
           <Card className="bg-card border-border">
             <CardContent className="p-3">
               <button 
-                onClick={handleGiftCard}
+                onClick={handleBuyActivation}
                 className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
               >
-                <Gift className="w-6 h-6 text-primary" />
-                <span className="text-foreground font-medium text-sm">Gift Card</span>
+                <CreditCard className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Buy Activation</span>
               </button>
             </CardContent>
           </Card>
