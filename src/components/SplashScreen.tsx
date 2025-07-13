@@ -26,7 +26,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       <div className="flex flex-col items-center space-y-8">
         <div className="logo-glow logo-pulse">
           <img
-            src="/lovable-uploads/642f7f37-e2e4-448d-876b-e6c8e9cd7b3f.png"
+            src="/lovable-uploads/b1baaa35-e4f7-4a96-b21c-db617b3b6c29.png"
             alt="Denance Logo"
             className="w-64 h-auto max-w-sm"
           />

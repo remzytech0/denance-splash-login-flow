@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X, Edit } from 'lucide-react';
+import { RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X, Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { WithdrawPage } from './WithdrawPage';
@@ -13,7 +13,6 @@ import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
 import { BuyActivationPage } from './BuyActivationPage';
 import { BuyActivationSuccessPage } from './BuyActivationSuccessPage';
-import { ActivationCodeManager } from './ActivationCodeManager';
 import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
@@ -33,7 +32,6 @@ export const Dashboard = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success' | 'history' | 'admin'>('dashboard');
   const [withdrawalData, setWithdrawalData] = useState<any>(null);
   const [showWelcomeAlert, setShowWelcomeAlert] = useState(true);
-  const [adminClicks, setAdminClicks] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -142,15 +140,6 @@ export const Dashboard = () => {
     setCurrentView('history');
   };
 
-  const handleBellClick = () => {
-    const newClicks = adminClicks + 1;
-    setAdminClicks(newClicks);
-    
-    if (newClicks >= 5) {
-      setCurrentView('admin');
-      setAdminClicks(0);
-    }
-  };
 
   if (loading) {
     return (
@@ -245,13 +234,6 @@ export const Dashboard = () => {
     );
   }
 
-  if (currentView === 'admin') {
-    return (
-      <ActivationCodeManager
-        onBack={() => setCurrentView('dashboard')}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-dark text-foreground">
@@ -266,10 +248,6 @@ export const Dashboard = () => {
           </h1>
         </div>
         <div className="flex items-center space-x-3">
-          <Bell 
-            className="w-5 h-5 text-primary cursor-pointer" 
-            onClick={handleBellClick}
-          />
           <Button
             onClick={signOut}
             variant="ghost"
@@ -427,8 +405,7 @@ export const Dashboard = () => {
       {/* Footer */}
       <div className="px-4 pb-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Bell className="w-4 h-4 text-primary" />
-          <span className="text-muted-foreground text-sm">O 2025</span>
+          <span className="text-muted-foreground text-sm">© 2025</span>
         </div>
       </div>
     </div>
