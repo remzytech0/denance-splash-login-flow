@@ -184,39 +184,39 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-dark text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 pb-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-            <User className="w-6 h-6 text-black" />
+      <div className="flex items-center justify-between p-4 pb-3">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+            <User className="w-5 h-5 text-black" />
           </div>
-          <h1 className="text-3xl font-bold text-primary">
+          <h1 className="text-xl font-bold text-primary">
             HELLO {profile?.username?.toUpperCase() || 'USER'}
           </h1>
         </div>
-        <div className="flex items-center space-x-4">
-          <Bell className="w-6 h-6 text-primary cursor-pointer" />
+        <div className="flex items-center space-x-3">
+          <Bell className="w-5 h-5 text-primary cursor-pointer" />
           <Button
             onClick={signOut}
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
           >
             <LogOut className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      <div className="px-6 space-y-6 mb-8">
+      <div className="px-4 space-y-4 mb-6">
         {/* Currency Selection Card */}
         <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-lg">Currency Selection</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Currency Selection</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="flex items-center space-x-4">
-              <span className="text-foreground">Select Currency:</span>
+              <span className="text-sm text-foreground">Select Currency:</span>
               <Select value={currency} onValueChange={(value: 'USD' | 'NGN') => setCurrency(value)}>
-                <SelectTrigger className="w-32 bg-background border-border">
+                <SelectTrigger className="w-28 h-8 bg-background border-border text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -225,7 +225,7 @@ export const Dashboard = () => {
                 </SelectContent>
               </Select>
             </div>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Use this dropdown to select your preferred currency.
             </p>
           </CardContent>
@@ -233,77 +233,94 @@ export const Dashboard = () => {
 
         {/* Balance Card */}
         <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-xl text-center">Current Balance</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-center">Current Balance</CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <div className="text-6xl font-bold text-primary mb-6">
+          <CardContent className="text-center pt-0">
+            <div className="text-4xl font-bold text-primary mb-4">
               {formatAmount(profile?.balance || 0)}
             </div>
             <Button 
               onClick={handleWithdraw}
-              className="bg-primary text-black hover:bg-primary/90 px-12 py-3 rounded-xl font-semibold text-lg"
+              className="bg-primary text-black hover:bg-primary/90 px-8 py-2 rounded-lg font-semibold text-base"
             >
               Withdraw
             </Button>
-            <p className="text-foreground mt-4 text-lg">
+            <p className="text-foreground mt-3 text-sm">
               Available Balance: {formatAmount(profile?.balance || 0)}
             </p>
           </CardContent>
         </Card>
 
-        {/* Action Buttons Card */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
+        {/* Action Buttons Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
               <button 
                 onClick={handleRefresh}
-                className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+                className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
               >
-                <RotateCcw className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">Reset</span>
+                <RotateCcw className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Reset</span>
               </button>
-            
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
               <button 
                 onClick={handleBuyActivation}
-                className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors"
+                className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors"
               >
-                <CreditCard className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">Buy Activation</span>
+                <CreditCard className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Buy Activation</span>
               </button>
-            
-              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-                <Phone className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">Airtime</span>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
+              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+                <Phone className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Airtime</span>
               </button>
-            
-              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-                <User className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">Contact</span>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
+              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+                <User className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Contact</span>
               </button>
-            
-              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-                <Clock className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">Watch</span>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
+              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+                <Clock className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">Watch</span>
               </button>
-            
-              <button className="flex flex-col items-center space-y-3 p-4 rounded-xl bg-background/5 hover:bg-background/10 transition-colors">
-                <FileText className="w-8 h-8 text-primary" />
-                <span className="text-foreground font-medium">History</span>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardContent className="p-3">
+              <button className="flex flex-col items-center space-y-2 w-full p-2 rounded-lg bg-background/5 hover:bg-background/10 transition-colors">
+                <FileText className="w-6 h-6 text-primary" />
+                <span className="text-foreground font-medium text-sm">History</span>
               </button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="px-6 pb-6 flex items-center justify-between">
+      <div className="px-4 pb-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Bell className="w-5 h-5 text-primary" />
-          <span className="text-muted-foreground">O 2025</span>
+          <Bell className="w-4 h-4 text-primary" />
+          <span className="text-muted-foreground text-sm">O 2025</span>
         </div>
       </div>
     </div>
