@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X } from 'lucide-react';
+import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut, Youtube, Info, X, Edit } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { WithdrawPage } from './WithdrawPage';
 import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
 import { BuyActivationPage } from './BuyActivationPage';
 import { BuyActivationSuccessPage } from './BuyActivationSuccessPage';
+import { ActivationCodeManager } from './ActivationCodeManager';
 import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
@@ -19,6 +22,7 @@ interface Profile {
   created_at: string;
   balance: number;
   last_refresh_at: string | null;
+  activation_code: string | null;
 }
 
 export const Dashboard = () => {
@@ -26,9 +30,10 @@ export const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState<'USD' | 'NGN'>('USD');
-  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success' | 'history'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'withdraw' | 'success' | 'buy-activation' | 'buy-success' | 'history' | 'admin'>('dashboard');
   const [withdrawalData, setWithdrawalData] = useState<any>(null);
   const [showWelcomeAlert, setShowWelcomeAlert] = useState(true);
+  const [adminClicks, setAdminClicks] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,7 +46,7 @@ export const Dashboard = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, phone_number, created_at, balance, last_refresh_at')
+        .select('username, phone_number, created_at, balance, last_refresh_at, activation_code')
         .eq('user_id', user?.id)
         .single();
 
@@ -137,6 +142,16 @@ export const Dashboard = () => {
     setCurrentView('history');
   };
 
+  const handleBellClick = () => {
+    const newClicks = adminClicks + 1;
+    setAdminClicks(newClicks);
+    
+    if (newClicks >= 5) {
+      setCurrentView('admin');
+      setAdminClicks(0);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center">
@@ -230,6 +245,14 @@ export const Dashboard = () => {
     );
   }
 
+  if (currentView === 'admin') {
+    return (
+      <ActivationCodeManager
+        onBack={() => setCurrentView('dashboard')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-dark text-foreground">
       {/* Header */}
@@ -243,7 +266,10 @@ export const Dashboard = () => {
           </h1>
         </div>
         <div className="flex items-center space-x-3">
-          <Bell className="w-5 h-5 text-primary cursor-pointer" />
+          <Bell 
+            className="w-5 h-5 text-primary cursor-pointer" 
+            onClick={handleBellClick}
+          />
           <Button
             onClick={signOut}
             variant="ghost"

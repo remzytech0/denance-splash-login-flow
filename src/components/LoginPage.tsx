@@ -122,7 +122,7 @@ export const LoginPage = () => {
         <div className="text-center mb-8">
           <div className="logo-glow mb-6">
             <img
-              src="/lovable-uploads/4ab83582-0f2d-434b-a1a4-8c77ca6a0b55.png"
+              src="/lovable-uploads/642f7f37-e2e4-448d-876b-e6c8e9cd7b3f.png"
               alt="Denance Logo"
               className="w-32 h-auto mx-auto"
             />
