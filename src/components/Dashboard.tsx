@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bell, RotateCcw, CreditCard, Phone, User, Clock, FileText, LogOut } from 'lucide-react';
 import { WithdrawPage } from './WithdrawPage';
+import { USDWithdrawPage } from './USDWithdrawPage';
 import { WithdrawSuccessPage } from './WithdrawSuccessPage';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,7 +51,7 @@ export const Dashboard = () => {
 
   const formatAmount = (amount: number) => {
     if (currency === 'NGN') {
-      return `₦${(amount * 10).toLocaleString()}`;
+      return `₦${(amount * 1000).toLocaleString()}`;
     }
     return `$${amount.toLocaleString()}`;
   };
@@ -75,10 +76,11 @@ export const Dashboard = () => {
     }
 
     try {
+      const refreshAmount = currency === 'NGN' ? 10 : 10;
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          balance: profile.balance + 100000,
+          balance: profile.balance + refreshAmount,
           last_refresh_at: now.toISOString()
         })
         .eq('user_id', user.id);
@@ -88,7 +90,7 @@ export const Dashboard = () => {
       await fetchProfile();
       toast({
         title: "Balance Updated!",
-        description: "100,000 has been added to your account",
+        description: `${currency === 'NGN' ? '₦10,000' : '$10'} has been added to your account`,
       });
     } catch (error) {
       console.error('Error updating balance:', error);
@@ -101,15 +103,7 @@ export const Dashboard = () => {
   };
 
   const handleWithdraw = () => {
-    if (currency === 'NGN') {
-      setCurrentView('withdraw');
-    } else {
-      toast({
-        title: "Currency Not Supported",
-        description: "Withdrawal is only available for NGN currency",
-        variant: "destructive"
-      });
-    }
+    setCurrentView('withdraw');
   };
 
   const handleWithdrawSuccess = (data: any) => {
@@ -127,14 +121,24 @@ export const Dashboard = () => {
   }
 
   if (currentView === 'withdraw') {
-    return (
-      <WithdrawPage
-        onBack={() => setCurrentView('dashboard')}
-        onSuccess={handleWithdrawSuccess}
-        currency={currency}
-        balance={profile?.balance || 0}
-      />
-    );
+    if (currency === 'NGN') {
+      return (
+        <WithdrawPage
+          onBack={() => setCurrentView('dashboard')}
+          onSuccess={handleWithdrawSuccess}
+          currency={currency}
+          balance={profile?.balance || 0}
+        />
+      );
+    } else {
+      return (
+        <USDWithdrawPage
+          onBack={() => setCurrentView('dashboard')}
+          onSuccess={handleWithdrawSuccess}
+          balance={profile?.balance || 0}
+        />
+      );
+    }
   }
 
   if (currentView === 'success') {

@@ -3,41 +3,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 
-interface WithdrawPageProps {
+interface USDWithdrawPageProps {
   onBack: () => void;
   onSuccess: (withdrawalData: any) => void;
-  currency: 'USD' | 'NGN';
   balance: number;
 }
 
-const nigerianBanks = [
-  'Access Bank', 'GTBank', 'First Bank', 'UBA', 'Zenith Bank', 
-  'Fidelity Bank', 'FCMB', 'Sterling Bank', 'Union Bank', 
-  'Wema Bank', 'Polaris Bank', 'Keystone Bank', 'Opay'
-];
-
-export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawPageProps) => {
+export const USDWithdrawPage = ({ onBack, onSuccess, balance }: USDWithdrawPageProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    accountName: '',
-    accountNumber: '',
-    bank: '',
+    walletAddress: '',
     amount: '',
     activationCode: ''
   });
 
   const minAmount = 10;
-  const maxAmount = 100;
-
-  const formatBalance = () => {
-    return `₦${(balance * 1000).toLocaleString()}`;
-  };
+  const maxAmount = 10000;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,17 +34,16 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
       const amount = parseFloat(formData.amount);
       
       // Validate amount
-        const amountInNaira = amount / 1000; // Convert input to base units
-        if (amountInNaira < minAmount || amountInNaira > maxAmount) {
+      if (amount < minAmount || amount > maxAmount) {
         toast({
           title: "Invalid Amount",
-          description: `Amount must be between ₦${(minAmount * 1000).toLocaleString()} and ₦${(maxAmount * 1000).toLocaleString()}`,
+          description: `Amount must be between $${minAmount.toLocaleString()} and $${maxAmount.toLocaleString()}`,
           variant: "destructive"
         });
         return;
       }
 
-      if (amountInNaira > balance) {
+      if (amount > balance) {
         toast({
           title: "Insufficient Balance",
           description: "You cannot withdraw more than your available balance",
@@ -90,18 +75,18 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
         .from('withdrawals')
         .insert({
           user_id: user.id,
-          account_name: formData.accountName,
-          account_number: formData.accountNumber,
-          bank_name: formData.bank,
-          amount: amountInNaira,
-          currency: currency,
+          account_name: 'Binance Wallet',
+          account_number: formData.walletAddress,
+          bank_name: 'Binance',
+          amount: amount,
+          currency: 'USD',
           activation_code: formData.activationCode.toUpperCase()
         });
 
       if (withdrawalError) throw withdrawalError;
 
       // Update user balance
-      const newBalance = balance - amountInNaira;
+      const newBalance = balance - amount;
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ balance: newBalance })
@@ -112,11 +97,11 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
       // Send to telegram
       const { error: telegramError } = await supabase.functions.invoke('send-telegram-notification', {
         body: {
-          accountName: formData.accountName,
-          accountNumber: formData.accountNumber,
-          bank: formData.bank,
-          amount: amountInNaira,
-          currency: currency,
+          accountName: 'Binance Wallet',
+          accountNumber: formData.walletAddress,
+          bank: 'Binance',
+          amount: amount,
+          currency: 'USD',
           activationCode: formData.activationCode.toUpperCase()
         }
       });
@@ -126,10 +111,9 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
       }
 
       onSuccess({
-        accountNumber: formData.accountNumber,
-        bank: formData.bank,
-        amount: amountInNaira,
-        currency: currency
+        walletAddress: formData.walletAddress,
+        amount: amount,
+        currency: 'USD'
       });
 
     } catch (error) {
@@ -160,51 +144,21 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
         </div>
 
         <div className="bg-primary rounded-t-2xl p-6 text-center mb-0">
-          <h1 className="text-2xl font-bold text-black">Transfer To Bank/Wallet</h1>
+          <h1 className="text-2xl font-bold text-black">USD Withdrawal</h1>
         </div>
 
         <div className="bg-background/10 rounded-b-2xl p-6 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Account Name */}
+            {/* Binance Wallet Address */}
             <div>
               <label className="block text-foreground text-sm font-medium mb-2">
-                ACCOUNT NAME
+                BINANCE WALLET ADDRESS
               </label>
               <Input
-                placeholder="Account Name"
-                value={formData.accountName}
-                onChange={(e) => setFormData(prev => ({ ...prev, accountName: e.target.value }))}
+                placeholder="Enter your Binance wallet address"
+                value={formData.walletAddress}
+                onChange={(e) => setFormData(prev => ({ ...prev, walletAddress: e.target.value }))}
                 className="bg-background/20 border-border text-foreground placeholder:text-muted-foreground"
-                required
-              />
-            </div>
-
-            {/* Account Number */}
-            <div>
-              <label className="block text-foreground text-sm font-medium mb-2">
-                ACCOUNT NUMBER
-              </label>
-              <Select 
-                value={formData.bank} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, bank: value }))}
-                required
-              >
-                <SelectTrigger className="bg-background/20 border-border text-foreground">
-                  <SelectValue placeholder="Choose Bank" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border-border">
-                  {nigerianBanks.map((bank) => (
-                    <SelectItem key={bank} value={bank} className="text-foreground hover:bg-primary/20">
-                      {bank}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                placeholder="Account Number"
-                value={formData.accountNumber}
-                onChange={(e) => setFormData(prev => ({ ...prev, accountNumber: e.target.value }))}
-                className="bg-background/20 border-border text-foreground placeholder:text-muted-foreground mt-2"
                 required
               />
             </div>
@@ -212,18 +166,22 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
             {/* Amount */}
             <div>
               <label className="block text-foreground text-sm font-medium mb-2">
-                AMOUNT
+                AMOUNT (USD)
               </label>
               <Input
                 type="number"
-                placeholder="Amount in Naira (e.g. 10000)"
+                placeholder="Amount in USD"
                 value={formData.amount}
                 onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
                 className="bg-background/20 border-border text-foreground placeholder:text-muted-foreground"
-                min={minAmount * 1000}
-                max={maxAmount * 1000}
+                min={minAmount}
+                max={maxAmount}
+                step="0.01"
                 required
               />
+              <p className="text-muted-foreground text-xs mt-1">
+                Min: ${minAmount} | Max: ${maxAmount.toLocaleString()}
+              </p>
             </div>
 
             {/* Activation Code */}
@@ -243,7 +201,7 @@ export const WithdrawPage = ({ onBack, onSuccess, currency, balance }: WithdrawP
             {/* Available Balance */}
             <div className="text-center py-4">
               <p className="text-foreground text-lg">
-                Available Balance: {formatBalance()}
+                Available Balance: ${balance.toLocaleString()}
               </p>
             </div>
 
